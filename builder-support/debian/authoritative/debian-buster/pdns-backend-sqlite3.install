@@ -1,0 +1,2 @@
+usr/lib/*/pdns/libgsqlite3backend.so*
+usr/share/doc/pdns/*.sqlite3.sql usr/share/pdns-backend-sqlite3/schema

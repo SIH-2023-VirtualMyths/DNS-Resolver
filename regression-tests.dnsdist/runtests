@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -e
+
+export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+
+if [ ! -d .venv ]; then
+  python3 -m venv .venv
+fi
+. .venv/bin/activate
+python -V
+
+if [ `uname -s` == Darwin ]
+then
+  if [ ! -e /usr/local/opt/curl-openssl ]
+  then
+    echo Please run: brew install curl-openssl, and try again
+    exit 1
+  else
+    export PYCURL_CURL_CONFIG=/usr/local/opt/curl-openssl/bin/curl-config
+    export LDFLAGS=-L/usr/local/opt/openssl/lib
+    export CPPFLAGS=-I/usr/local/opt/openssl/include
+  fi
+fi
+pip install -U pip wheel | cat
+pip install -r requirements.txt | cat
+
+protoc -I=../pdns/ --python_out=. ../pdns/dnsmessage.proto
+protoc -I=../pdns/ --python_out=. ../pdns/dnstap.proto
+
+mkdir -p configs
+
+if [ -z "${DNSDISTBIN}" ]; then
+  DNSDISTBIN=$(ls ../pdns/dnsdistdist/dnsdist-*/dnsdist)
+fi
+export DNSDISTBIN
+
+set -e
+if [ "${PDNS_DEBUG}" = "YES" ]; then
+  set -x
+fi
+
+make clean-certs
+make clean-configs
+make certs
+
+out=$(mktemp)
+set -o pipefail
+if ! pytest --junitxml=pytest.xml --dist=loadfile -n auto $@ 2>&1 | tee "${out}" ; then
+    for log in configs/*.log; do
+        echo "=== ${log} ==="
+        cat "${log}"
+        echo
+    done
+    echo "=== pytest log ==="
+    cat "${out}"
+    echo "=== end of pytest log ==="
+    false
+fi
+rm -f "${out}"
+
+make clean-certs

@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -e
+if [ "${PDNS_DEBUG}" = "YES" ]; then
+  set -x
+fi
+
+local_address="127.0.0.1,::1"
+
+if [ -n "${SKIP_IPV6_TESTS}" ]; then
+  local_address="127.0.0.1"
+fi
+
+port=5600
+
+rm -f pdns*.pid
+
+$PDNS --daemon=no --local-address=$local_address \
+  --local-port=$port --socket-dir=./ --no-shuffle --launch=bind --no-config \
+  --module-dir=../regression-tests/modules --bind-config=counters/named.conf &
+
+sleep 2
+
+$SDIG 127.0.0.1 $port server1.test.com A >&2 >/dev/null
+$SDIG 127.0.0.1 $port test.com SOA >&2 >/dev/null
+
+$SDIG 127.0.0.1 $port server1.test.com A tcp >&2 >/dev/null
+$SDIG 127.0.0.1 $port test.com SOA tcp >&2 >/dev/null
+
+if [ -z "${SKIP_IPV6_TESTS}" ]; then
+  $SDIG ::1 $port server1.test.com A >&2 >/dev/null
+  $SDIG ::1 $port server1.com A tcp >&2 >/dev/null
+
+  $SDIG ::1 $port test.com SOA >&2 >/dev/null
+  $SDIG ::1 $port test.com SOA tcp >&2 >/dev/null
+fi
+
+# NXDOMAIN
+$SDIG 127.0.0.1 $port nx.test.com A >&2 >/dev/null
+
+# NOERROR
+$SDIG 127.0.0.1 $port test.com SRV >&2 >/dev/null
+
+# unauth
+$SDIG 127.0.0.1 $port test.com.invalid MX >&2 >/dev/null
+
+$PDNSCONTROL --config-name= --no-config --socket-dir=./ 'show *' | \
+  tr ',' '\n'| grep -v -E '(user-msec|sys-msec|cpu-iowait|cpu-steal|uptime|udp-noport-errors|udp-in-csum-errors|udp-in-errors|udp-recvbuf-errors|udp-sndbuf-errors|real-memory-usage|special-memory-usage|udp6-recvbuf-errors|udp6-sndbuf-errors|udp6-noport-errors|udp6-in-csum-errors|udp6-in-errors|-hit|-miss|fd-usage|latency|backend-queries)' | LC_ALL=C sort
+
+kill $(cat pdns*.pid)
+rm pdns*.pid

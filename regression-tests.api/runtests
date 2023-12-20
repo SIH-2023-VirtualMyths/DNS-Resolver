@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+if [ ! -d .venv ]; then
+  python3 -m venv .venv
+fi
+. .venv/bin/activate
+python -V
+pip install -U pip wheel | cat
+pip install -r requirements.txt | cat
+
+if [ -z "${SDIG}" ]; then
+  export SDIG=$(type -P sdig)
+fi
+
+set -e
+if [ "${PDNS_DEBUG}" = "YES" ]; then
+  set -x
+fi
+if [ "$1" = "recursor" ]; then
+  # Create a rec-specific test zone, as rec does not know ALIAS
+    fgrep -v ALIAS ../regression-tests/zones/example.com > ../regression-tests/zones/example.com.rec
+fi
+exec ./runtests.py "$@"

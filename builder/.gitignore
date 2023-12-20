@@ -1,0 +1,6 @@
+/tmp
+/cache
+*.pyc
+*.tmp
+.DS_Store
+.*.sw?

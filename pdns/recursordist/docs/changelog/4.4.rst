@@ -1,0 +1,800 @@
+Changelogs for 4.4.x
+====================
+
+.. changelog::
+  :version: 4.4.8
+  :released: 25th of March 2022
+
+  This is a security fix release for :doc:`PowerDNS Security Advisory 2022-01 <../security-advisories/powerdns-advisory-2022-01>`.
+  Additionally, because CentOS 8 is End Of Life now, we have switched those builds to Oracle Linux 8. The resulting packages are compatible with RHEL and all derivatives.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 11456
+
+    Fix validation of incremental zone transfers (IXFRs). 
+
+.. changelog::
+  :version: 4.4.7
+  :released: 5th of November 2021
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10910
+    :tickets: 10908
+
+    A SHA-384 DS should not trump a SHA-256 one, only potentially ignore SHA-1 DS records.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10909
+    :tickets: 10905
+
+    rec_control wipe-cache-typed should check if a qtype argument is present and valid.
+
+.. changelog::
+  :version: 4.4.6
+  :released: 8th of October 2021
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10802
+    :tickets: 10768
+
+    Use the correct RPZ policy name for statistics when loading via XFR.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10654
+    :tickets: 10643
+
+    NS from the cache could be a forwarder, take that into account for throttling decision.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10628
+    :tickets: 10627
+
+    Check in more places if the policy has been updated before using or modifying it.
+
+.. changelog::
+  :version: 4.4.5
+  :released: 30th of July 2021
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 10580
+    :tickets: 10555
+
+    Work around clueless servers sending AA=0 answers.
+
+.. changelog::
+  :version: 4.4.4
+  :released: 9th of June 2021
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10390
+
+    Check if we have room before adding zero ECS scope ENDS value.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10383
+    :tickets: 10303
+
+    Use the correct ECS address when proxy-protocol is enabled.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10385
+
+    Apply dns64 on RPZ hits generated after a gettag_ffi hit.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10314
+    :tickets: 10286
+
+    RPZ dumper: stop generating double zz labels on networks that start with zeroes.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10313
+    :tickets: 10291
+
+    Exception loading the RPZ seed file is not fatal.
+
+.. changelog::
+  :version: 4.4.3
+  :released: 31st of March 2021
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10240
+    :tickets: 10238
+
+    More fail-safe handling of Newly Discovered Domain files.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10227
+    :tickets: 10111
+
+    Handle policy (if needed) after postresolve.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10226
+    :tickets: 10064
+
+    Return current rcode instead of 0 if there are no CNAME records to follow.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10224
+    :tickets: 9883
+
+    Lookup DS entries before CNAME entries.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 10221
+    :tickets: 9856
+
+    Use a short-lived NSEC3 hashes cache for denial validation.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10199
+    :tickets: 9812
+
+    Handle failure to start the web server more gracefully.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10197
+    :tickets: 9970
+
+    Test that we correctly cap the answer's TTL in expanded wildcard cases.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10194
+    :tickets: 9793
+
+    Fix the gathering of denial proof for wildcard-expanded answers.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 10192
+    :tickets: 10185
+
+    Make sure we take the right minimum for the packet cache TTL data in the SERVFAIL case.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 10062
+
+    Pull in libfstrm for el8 build.
+
+.. changelog::
+  :version: 4.4.2
+  :released: 14th of December 2020
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9837
+
+    UUID: Use the non-cryptographic variant of the boost::uuid.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9838
+
+    Keep a cached, valid entry over a fresher Bogus one.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9799
+    :tickets: 9574
+
+    Ensure socket-dir matches runtime directory on old systemd
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9825
+    :tickets: 9807
+
+    Untangle the validation/resolving qnames and qtypes.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9821
+    :tickets: 9597
+
+    Move to several distinct Bogus states, for easier debugging.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9805
+    :tickets: 9790
+
+    Do not chase CNAME during qname minimization step 4.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9774
+    :tickets: 9766
+
+    APL records: fix endianness problem.
+
+.. changelog::
+  :version: 4.4.1
+  :released: 25th of November 2020
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9719
+    :tickets: 9707
+
+    Do not add request to a wait chain that's already processed or being processed.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9687
+    :tickets: 9651
+
+    Allow to specify a name in getMetric() that is used for Prometheus export only.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9710
+    :tickets: 9696
+
+    Avoid a CNAME loop detection issue with DNS64
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9705
+    :tickets: 9697
+
+    Do not send overly long NOD lookups.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9683
+    :tickets: 9680
+
+    If a.b.c CNAME x.a.b.c is encountered, switch off QName Minimization.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9682
+    :tickets: 9679
+
+    Fix the processing of answers generated from gettag.
+
+
+.. changelog::
+  :version: 4.4.0
+  :released: 19th of October 2020
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9605
+
+    Backport of CVE-2020-25829: Cache pollution.
+
+.. changelog::
+  :version: 4.4.0-rc2
+  :released: 6th of October 2020
+
+   .. change::
+    :tags: Bug Fixes
+    :pullreq: 9579
+    :tickets: 9434
+
+    When deciding if we are auth in the local auth or forwarding case, DS is special.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9577
+    :tickets: 9569
+
+    Don't parse any config with `--version`.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9576
+    :tickets: 9562
+
+    Expose typed cache flush via Web API.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9557
+    :tickets: 9515
+
+    Fix wipe-cache-typed.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9528
+    :tickets: 9471
+
+    Log when going Bogus because of a missing SOA in authority.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9526
+    :tickets: 9495
+
+    Watch the descriptor again after an out-of-order read timeout.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9506
+    :tickets: 9497
+
+    Raise an exception on invalid content in unknown record.
+
+.. changelog::
+  :version: 4.4.0-rc1
+  :released: 21st of September 2020
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9465
+    :tickets: 9448
+
+    Only do QName Minimization for the names inside a forwarded domain.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9458
+
+    Fix the parsing of `dont-throttle-netmasks` in the presence of `dont-throttle-names`.
+
+.. changelog::
+  :version: 4.4.0-beta1
+  :released: 31st of August 2020
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9376
+
+    Store RPZ trigger and hit in appliedPolicy and protobuf message
+    and log them in the trace log.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9414
+    :tickets: 9363
+
+    Apply filtering policies (RPZ) on CNAME chains as well.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9411
+
+    Fix warning: initialized lambda captures are a C++14 extension.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9375
+
+    Allow some more depth headroom for the no-qname-minimization fallback case.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9412
+
+    Clean some coverity reported cases of exceptions thrown but not caught.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9391
+
+    Export record cache lock (contention) stats via the various channels.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9396
+
+    Allow multiple local data records when doing RPZ IP matching.
+
+  .. change::
+    :tags: Improvements, Internals
+    :pullreq: 9380
+
+    Replace the use of '1' by QClass::IN to improve readability.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9351
+    :tickets: 9227
+
+    If we have an NS in cache, use it in the forwarder case.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9196
+
+    Disable outgoing v4 when query-local-address has no v4 addresses.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9343
+
+    Resize hostname to final size in getCarbonHostname() (Aki Tuomi).
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9348
+    :tickets: 9279
+
+    Avoid name clashes on Solaris derived systems.
+
+.. changelog::
+  :version: 4.4.0-alpha2
+  :released: 20th of July 2020
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9320
+
+    Update proxy-protocol.cc (ihsinme).
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9308
+
+    Check that DNSKEYs have the zone flag set.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9314
+
+    Remove redundant toLogString() calls (Chris Hofstaedtler).
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9312
+
+    Stop cluttering the global namespace with validation states.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9231
+
+    Use explicit flag for the specific version of c++ we're targeting.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9303
+
+    Use new operator to print states.
+
+  .. change::
+    :tags: Internals, Bug Fixes
+    :pullreq: 9302
+
+    Kill an signed vs unsigned warning on OpenBSD.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9290
+
+    Refuse QType 0 right away, based on rfc6895 section 3.1.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9295
+
+    Specify a storage type for validation states.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9289
+
+    Common TCP write problems should only be logged if wanted.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9288
+
+    Dump the authority records of a negative cache entry as well.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9237
+
+    Don't validate a NXD with a NSEC proving that the name is an ENT.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9272
+    :tickets: 9266
+
+    Alternative way to do "skip cname check" for DS and DNSKEY records
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9267
+
+    Control stack depth when priming.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9252
+
+    Add version 'statistic' to prometheus.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9236
+
+    Cleanup cache cleaner pruneCollection function.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9226
+
+    Fix three shared cache issues.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9203
+
+    RPZ policy should override gettag_ffi answer by default.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9216
+
+    Don't copy the records when scanning for CNAME loops.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9213
+
+    Do not use `using namespace std;` .
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9202
+    :tickets: 9153, 9194
+
+    More sophisticated CNAME loop detection.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9205
+    :tickets: 9193
+
+    Limit the TTL of RRSIG records as well.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9207
+
+    Use std::string_view when available (Rosen Penev).
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9152
+
+    Make sure we can install unsigned packages.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9162
+
+    Clarify docs (Josh Soref).
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9073
+
+    Ensure runtime dirs for virtual services differ.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9085
+    :tickets: 8094
+
+    Builder: improve shipped config files (Chris Hofstaedtler).
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9100
+
+    Less negatives in error messages improves readability.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9070
+
+    Boost 1.73 moved boost::bind placeholders to the placeholders namespace.
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9079
+
+    Avoid throwing an exception in Logger::log().
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9076
+
+    Fix useless copies in loop reported by clang++ 10.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9078
+
+    NetmaskTree: do not test node for null, the loop guarantees node is not null.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9067
+
+    Wrap pthread objects
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9053
+
+    Get rid of a naked pointer in the /dev/poll event multiplexer.
+
+  .. change::
+    :tags: Internals, Improvements
+    :pullreq: 9016
+    :tickets: 9004
+
+    Random engine.
+
+.. changelog::
+  :version: 4.4.0-alpha1
+  :released: 22th of April 2020
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 9031
+    :tickets: 9025
+
+    Fix compilation of the ports event multiplexer.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 9000
+
+    Fix warnings with llvm10 and -Wrange-loop-construct (Kirill Ponomarev).
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8985
+
+    Fix compilation without deprecated OpenSSL APIs (Rosen Penev).
+
+  .. change::
+    :tags: New Features
+    :pullreq: 8967
+
+    Implement native DNS64 support, without Lua.
+
+  .. change::
+    :tags: New Features
+    :pullreq: 8927
+
+    Add custom tags to RPZ hits.
+
+  .. change::
+    :tags: New Features
+    :pullreq:  8910
+
+    Allow attaching a 'routing' tag string to a query in lua code and use that
+    tag in the record cache when appropriate.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8900
+    :tickets: 8739
+
+    Detect {Libre,Open}SSL functions availability during configure.
+
+  .. change::
+    :tags: New Features
+    :pullreq: 8898
+
+    Share record cache between threads.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8887
+
+    Better handling of reconnections in Remote Logger.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8883
+    :tickets: 8629
+
+    Add 'queue full' metrics for our remote logger, log at debug only.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8876, 8740
+    :tickets: 8875
+
+    Update boost.m4
+
+  .. change::
+    :tags: New Features
+    :pullreq: 8874
+
+    Add support for Proxy Protocol between dnsdist and the recursor.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8812
+
+    Keep a masked network in the Netmask class.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8631
+
+    Replace include guard ifdef/define with pragma once (Chris Hofstaedtler).
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 8830
+
+    Init zone's d_priority field.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8815
+
+    YaHTTP: Support bracketed IPv6 addresses
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8355
+
+    Rework NetmaskTree for better CPU and memory efficiency (Stephan Bosch).
+
+  .. change::
+    :tags: Bug Fixes
+    :pullreq: 8777
+    :tickets: 8697
+
+    QName Minimization sometimes uses 1 label too many.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8778
+
+    RPZ dumpFile/seedFile: store/get SOA refresh on dump/load.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8783
+
+    Add 'IO wait' and 'steal' metrics on Linux.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8792
+
+    DNSName: Don't call strlen() when the length is already known.
+
+  .. change::
+    :tags: Improvements
+    :pullreq: 8640
+
+    Fix build with gcc-10 (Sander Hoentjen).
+
+

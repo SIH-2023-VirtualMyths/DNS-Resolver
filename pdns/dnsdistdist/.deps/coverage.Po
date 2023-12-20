@@ -1,0 +1,5 @@
+coverage.o: coverage.cc config.h coverage.hh
+
+config.h:
+
+coverage.hh:

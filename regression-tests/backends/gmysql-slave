@@ -1,0 +1,106 @@
+	context=${context}-presigned-gmysql
+	[ -z "$GMYSQL2DB" ] && GMYSQL2DB=pdnstest2
+	[ -z "$GMYSQL2USER" ] && GMYSQL2USER=root
+	[ -z "$GMYSQL2HOST" ] && GMYSQL2HOST=localhost
+	[ -z "$GMYSQL2PASSWD" ] && GMYSQL2PASSWD=''
+
+	mysqladmin --user="$GMYSQL2USER" --password="$GMYSQL2PASSWD" --host="$GMYSQL2HOST" \
+		--force drop "$GMYSQL2DB" || echo ignoring mysqladmin drop failure
+	mysqladmin --user="$GMYSQL2USER" --password="$GMYSQL2PASSWD" --host="$GMYSQL2HOST" \
+		create "$GMYSQL2DB"
+	mysql --user="$GMYSQL2USER" --password="$GMYSQL2PASSWD" --host="$GMYSQL2HOST" \
+		"$GMYSQL2DB" < ../modules/gmysqlbackend/schema.mysql.sql
+
+	cat > pdns-gmysql2.conf << __EOF__
+module-dir=./modules
+launch=gmysql
+gmysql-dbname=$GMYSQL2DB
+gmysql-user=$GMYSQL2USER
+gmysql-host=$GMYSQL2HOST
+gmysql-password=$GMYSQL2PASSWD
+
+zone-cache-refresh-interval=0
+__EOF__
+
+	if [[ $context != *nodnssec* ]]
+	then
+		echo "gmysql-dnssec" >> pdns-gmysql2.conf
+	fi
+
+	zones=0
+	for zone in $(grep 'zone ' named.conf  | cut -f2 -d\" | perl -e 'print reverse <STDIN>')
+	do
+		zones=$((zones+1))
+		if [ "$zone" = "example.com" ]; then
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 create-secondary-zone $zone 127.0.0.1:$port
+		fi
+		if [ "$zone" = "test.com" ]; then
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 create-secondary-zone $zone 127.0.0.1:$port
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-catalog $zone other-catalog.invalid
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-option $zone consumer coo catalog.invalid
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-option $zone consumer unique 42
+		fi
+		if [ "$zone" = "tsig.com" ]; then
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 create-secondary-zone $zone 127.0.0.2:$port
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-catalog $zone catalog.invalid
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-option $zone consumer unique $($SAXFR 127.0.0.1 $port catalog.invalid | grep $zone | grep PTR | cut -d'.' -f1)
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 import-tsig-key test $ALGORITHM $KEY
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 activate-tsig-key tsig.com test secondary
+		fi
+		if [ "$zone" = "stest.com" ]; then
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 create-secondary-zone $zone 127.0.0.1:$port
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-catalog $zone other-catalog.invalid
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-option $zone consumer coo catalog.invalid
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-option $zone consumer unique $($SAXFR 127.0.0.1 $port catalog.invalid | grep $zone | grep PTR | cut -d'.' -f1)
+			if [[ $skipreasons != *nolua* ]]; then
+				$PDNSUTIL --config-dir=. --config-name=gmysql2 set-meta stest.com AXFR-SOURCE 127.0.0.2
+			fi
+		fi
+		if [ "$zone" = "wtest.com" ]; then
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 create-secondary-zone $zone 127.0.0.1:$port
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-catalog $zone catalog.invalid
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 set-option $zone consumer unique 42
+		fi
+		if [ "$zone" = "." ]; then
+			$PDNSUTIL --config-dir=. --config-name=gmysql2 create-secondary-zone $zone 127.0.0.1:$port
+		fi
+	done
+
+	# setup catalog zone
+	if [ $zones -ne 1 ] # detect root tests
+	then
+		zones=$((zones+1))
+		$PDNSUTIL --config-dir=. --config-name=gmysql2 create-secondary-zone catalog.invalid 127.0.0.1:$port
+		$PDNSUTIL --config-dir=. --config-name=gmysql2 set-kind catalog.invalid consumer
+
+		$PDNSUTIL --config-dir=. --config-name=gmysql2 create-secondary-zone remove.invalid 127.0.0.1:$port
+		$PDNSUTIL --config-dir=. --config-name=gmysql2 set-catalog remove.invalid catalog.invalid
+	fi
+
+	port=$((port+100))
+
+	$RUNWRAPPER $PDNS2 --daemon=no --local-port=$port --config-dir=. \
+		--config-name=gmysql2 --socket-dir=./ --no-shuffle \
+		--secondary --xfr-cycle-interval=15 --dname-processing &
+
+	sleep 1
+	$PDNSCONTROL --config-name=gmysql2 --socket-dir=. --no-config retrieve catalog.invalid
+
+	echo 'waiting for zones to be fetched'
+	loopcount=0
+	while [ $loopcount -lt 30 ]
+	do
+		sleep 5
+		present=$(mysql --user="$GMYSQL2USER" --password="$GMYSQL2PASSWD" --host="$GMYSQL2HOST" \
+			"$GMYSQL2DB" -ss -e "SELECT COUNT(DISTINCT(name)) FROM records WHERE type='SOA'")
+		if [ $present -eq $zones ]
+		then
+			break
+		fi
+		let loopcount=loopcount+1
+	done
+	if [ $present -ne $zones ]
+	then
+		echo "AXFR FAILED" >> failed_tests
+		exit
+	fi

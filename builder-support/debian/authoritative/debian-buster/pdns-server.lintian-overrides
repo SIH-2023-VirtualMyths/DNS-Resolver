@@ -1,0 +1,2 @@
+# Often this file will contain passwords.
+pdns-server: non-standard-file-perm etc/powerdns/pdns.conf 0640 != 0644

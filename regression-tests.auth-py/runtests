@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -e
+
+if [ ! -d .venv ]; then
+    python3 -m venv .venv
+fi
+
+. .venv/bin/activate
+python -V
+pip install -U pip wheel | cat
+pip install -q -r requirements.txt | cat
+
+mkdir -p configs
+
+[ -f ./vars ] && . ./vars
+
+export PDNS=${PDNS:-${PWD}/../pdns/pdns_server}
+export PDNSUTIL=${PDNSUTIL:-${PWD}/../pdns/pdnsutil}
+export PDNSCONTROL=${PDNSCONTROL:-${PWD}/../pdns/pdns_control}
+
+export PREFIX=127.0.0
+
+for bin in "$PDNS" "$PDNSUTIL"; do
+    if [ -n "$bin" -a ! -e "$bin" ]; then
+        echo "E: Required binary $bin not found. Please install the binary and/or edit ./vars."
+        exit 1
+  fi
+done
+
+if [ "${PDNS_DEBUG}" = "YES" ]; then
+  set -x
+fi
+
+ignore="--ignore=test_GSSTSIG.py"
+if [ "${WITHKERBEROS}" = "YES" ]; then
+    ignore=""
+    (cd kerberos-server && sudo docker compose up --detach --build)
+fi
+
+pytest --junitxml=pytest.xml $ignore $@
+ret=$?
+
+if [ "${WITHKERBEROS}" = "YES" ]; then
+    (cd kerberos-server && sudo docker compose stop || exit 0)
+fi
+exit $ret

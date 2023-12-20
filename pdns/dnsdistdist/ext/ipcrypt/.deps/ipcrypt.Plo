@@ -1,0 +1,3 @@
+ipcrypt.lo: ipcrypt.c ipcrypt.h
+
+ipcrypt.h:

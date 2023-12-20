@@ -1,0 +1,4 @@
+#!/bin/sh
+cleandig srv.arthur.example.net srv | sed 's/\(.*\t\)\([0-9]\+\tIN\)/\13600\tIN/'
+cleandig rp.arthur.example.net rp | sed 's/\(.*\t\)\([0-9]\+\tIN\)/\13600\tIN/'
+cleandig type1234.arthur.example.net TYPE1234 | sed 's/\(.*\t\)\([0-9]\+\tIN\)/\13600\tIN/'

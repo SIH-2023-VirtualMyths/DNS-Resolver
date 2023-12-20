@@ -1,0 +1,1462 @@
+-- -*- snmpv2 -*-
+-- ----------------------------------------------------------------------
+-- MIB file for PowerDNS Recursor
+-- ----------------------------------------------------------------------
+
+PDNSRECURSOR-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    OBJECT-TYPE, MODULE-IDENTITY, enterprises,
+    Counter64, NOTIFICATION-TYPE
+        FROM SNMPv2-SMI
+    CounterBasedGauge64
+        FROM HCNUM-TC
+    OBJECT-GROUP, MODULE-COMPLIANCE, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF;
+
+rec MODULE-IDENTITY
+    LAST-UPDATED "202107200000Z"
+    ORGANIZATION "PowerDNS BV"
+    CONTACT-INFO "support@powerdns.com"
+    DESCRIPTION
+       "This MIB module describes information gathered through PowerDNS Recursor."
+
+    REVISION "201611290000Z"
+    DESCRIPTION "Initial revision."
+
+    REVISION "201812240000Z"
+    DESCRIPTION "Added the dnssecAuthenticDataQueries and dnssecCheckDisabledQueries stats."
+
+    REVISION "201911140000Z"
+    DESCRIPTION "Added qnameMinFallbackSuccess stats."
+
+    REVISION "202002170000Z"
+    DESCRIPTION "Added proxyProtocolInvalid metric."
+
+    REVISION "202101050000Z"
+    DESCRIPTION "Added Aggressive NSEC cache metrics."
+
+    REVISION "202107200000Z"
+    DESCRIPTION "Added almost expired task metrics."
+
+    REVISION "202110270000Z"
+    DESCRIPTION "Added more UDP errors metric."
+
+    REVISION "202111090000Z"
+    DESCRIPTION "Added NOTIFY-related metrics."
+
+    REVISION "202201310000Z"
+    DESCRIPTION "Added non-resolving NS name metric."
+
+    REVISION "202208220000Z"
+    DESCRIPTION "Added internal maintenance metrics."
+
+    REVISION "202209120000Z"
+    DESCRIPTION "Added metrics for answers from auths by rcode"
+
+    REVISION "202302240000Z"
+    DESCRIPTION "Added metrics for sharded packet cache contention"
+
+    REVISION "202306080000Z"
+    DESCRIPTION "Added metrics for NOD and UDR events"
+
+    ::= { powerdns 2 }
+
+powerdns		OBJECT IDENTIFIER ::= { enterprises 43315 }
+
+stats OBJECT IDENTIFIER ::= { rec 1 }
+
+questions OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of questions"
+    ::= { stats 1 }
+
+ipv6Questions OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv6 questions"
+    ::= { stats 2 }
+
+tcpQuestions OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of TCP questions"
+    ::= { stats 3 }
+
+cacheHits OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of cache hits"
+    ::= { stats 4 }
+
+cacheMisses OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of cache misses"
+    ::= { stats 5 }
+
+cacheEntries OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of cache entries"
+    ::= { stats 6 }
+
+cacheBytes OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Size of the cache in bytes"
+    ::= { stats 7 }
+
+packetcacheHits OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of packetcache hits"
+    ::= { stats 8 }
+
+packetcacheMisses OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of packetcache misses"
+    ::= { stats 9 }
+
+packetcacheEntries OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of packetcache entries"
+    ::= { stats 10 }
+
+packetcacheBytes OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Size of the packetcache in bytes"
+    ::= { stats 11 }
+
+mallocBytes OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of bytes allocated by malloc"
+    ::= { stats 12 }
+
+servfailAnswers OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of servfail answers"
+    ::= { stats 13 }
+
+nxdomainAnswers OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of nxdomain answers"
+    ::= { stats 14 }
+
+noerrorAnswers OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of noerror answers"
+    ::= { stats 15 }
+
+unauthorizedUdp OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of unauthorized UDP queries"
+    ::= { stats 16 }
+
+unauthorizedTcp OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of unauthorized TCP queries"
+    ::= { stats 17 }
+
+tcpClientOverflow OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of TCP client connections refused because of too many connections"
+    ::= { stats 18 }
+
+clientParseErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of client parse errors"
+    ::= { stats 19 }
+
+serverParseErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of server parse errors"
+    ::= { stats 20 }
+
+tooOldDrops OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries dropped because of a timeout"
+    ::= { stats 21 }
+
+answers01 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries answered in less than 1 ms"
+    ::= { stats 22 }
+
+answers110 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries answered in 1-10 ms"
+    ::= { stats 23 }
+
+answers10100 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries answered in 10-100 ms"
+    ::= { stats 24 }
+
+answers1001000 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries answered in 100-1000 ms"
+    ::= { stats 25 }
+
+answersSlow OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries answered in more than 1000 ms"
+    ::= { stats 26 }
+
+auth4Answers01 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv4 queries answered in less than 1 ms"
+    ::= { stats 27 }
+
+auth4Answers110 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv4 queries answered in 1-10 ms"
+    ::= { stats 28 }
+
+auth4Answers10100 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv4 queries answered in 10-100 ms"
+    ::= { stats 29 }
+
+auth4Answers1001000 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv4 queries answered in 100-1000 ms"
+    ::= { stats 30 }
+
+auth4Answersslow OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv4 queries answered in more than 1000 ms"
+    ::= { stats 31 }
+
+auth6Answers01 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv6 queries answered in less than 1 ms"
+    ::= { stats 32 }
+
+auth6Answers110 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv6 queries answered in 1-10 ms"
+    ::= { stats 33 }
+
+auth6Answers10100 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv6 queries answered in 10-100 ms"
+    ::= { stats 34 }
+
+auth6Answers1001000 OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv6 queries answered in 100-1000 ms"
+    ::= { stats 35 }
+
+auth6AnswersSlow OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv6 queries answered in more than 1000 ms"
+    ::= { stats 36 }
+
+qaLatency OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Average latency in microseconds"
+    ::= { stats 37 }
+
+unexpectedPackets OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of unexpected packets"
+    ::= { stats 38 }
+
+caseMismatches OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of case mismatches"
+    ::= { stats 39 }
+
+spoofPrevents OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of spoof prevents"
+    ::= { stats 40 }
+
+nssetInvalidations OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of nsset invalidations"
+    ::= { stats 41 }
+
+resourceLimits OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of resolution aborted because of a local resource limit"
+    ::= { stats 42 }
+
+overCapacityDrops OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries dropped because the threads limit was reached"
+    ::= { stats 43 }
+
+policyDrops OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries dropped because of a policy"
+    ::= { stats 44 }
+
+noPacketError OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of calls to recvmsg() that returned no packet even though the socket was ready"
+    ::= { stats 45 }
+
+dlgOnlyDrops OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Obsolete"
+    ::= { stats 46 }
+
+ignoredPackets OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of ignored packets"
+    ::= { stats 47 }
+
+maxMthreadStack OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Maximum size of the Mthread stack"
+    ::= { stats 48 }
+
+negcacheEntries OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of negcache entries"
+    ::= { stats 49 }
+
+throttleEntries OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of throttle entries"
+    ::= { stats 50 }
+
+nsspeedsEntries OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of nsspeeds entries"
+    ::= { stats 51 }
+
+failedHostEntries OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of entries in the failed NS cache"
+    ::= { stats 52 }
+
+concurrentQueries OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of concurrent queries"
+    ::= { stats 53 }
+
+securityStatus OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Current security status"
+    ::= { stats 54 }
+
+outgoingTimeouts OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of outgoing timeouts"
+    ::= { stats 55 }
+
+outgoing4Timeouts OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv4 outgoing timeouts"
+    ::= { stats 56 }
+
+outgoing6Timeouts OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv6 outgoing timeouts"
+    ::= { stats 57 }
+
+tcpOutqueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of outgoing TCP queries sent"
+    ::= { stats 58 }
+
+allOutqueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of outgoing queries sent"
+    ::= { stats 59 }
+
+ipv6Outqueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of IPv6 outgoing queries sent"
+    ::= { stats 60 }
+
+throttledOutqueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of throttled outgoing queries"
+    ::= { stats 61 }
+
+dontOutqueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of outgoing queries not sent because of a 'dont-query' setting"
+    ::= { stats 62 }
+
+unreachables OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of errors due to an unreachable server"
+    ::= { stats 63 }
+
+chainResends OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of chain resends"
+    ::= { stats 64 }
+
+tcpClients OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of TCP clients"
+    ::= { stats 65 }
+
+udpRecvbufErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP recvbuf errors (Linux only)"
+    ::= { stats 66 }
+
+udpSndbufErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP sndbuf errors (Linux only)"
+    ::= { stats 67 }
+
+udpNoportErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP noport errors (Linux only)"
+    ::= { stats 68 }
+
+udpinErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP in errors (Linux only)"
+    ::= { stats 69 }
+
+ednsPingMatches OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of EDNS Ping matches"
+    ::= { stats 70 }
+
+ednsPingMismatches OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of EDNS Ping mismatches"
+    ::= { stats 71 }
+
+dnssecQueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of DNSSEC queries"
+    ::= { stats 72 }
+
+nopingOutqueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of outgoing queries w/o ping"
+    ::= { stats 73 }
+
+noednsOutqueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of outgoing queries w/o EDNS"
+    ::= { stats 74 }
+
+uptime OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Process uptime in seconds"
+    ::= { stats 75 }
+
+realMemoryUsage OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Memory usage"
+    ::= { stats 76 }
+
+fdUsage OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "File descriptors usage"
+    ::= { stats 77 }
+
+userMsec OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "CPU usage (user) in ms"
+    ::= { stats 78 }
+
+sysMsec OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "CPU usage (system) in ms"
+    ::= { stats 79 }
+
+dnssecValidations OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of responses sent, packet-cache hits excluded, for which a DNSSEC validation was requested by either the client or the configuration"
+    ::= { stats 80 }
+
+dnssecResultInsecure OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of responses sent, excluding packet-cache hits, that were in the DNSSEC insecure state"
+    ::= { stats 81 }
+
+dnssecResultSecure OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of responses sent, excluding packet-cache hits, that were in the DNSSEC secure state"
+    ::= { stats 82 }
+
+dnssecResultBogus OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of responses sent, excluding packet-cache hits, that were in the DNSSEC bogus state"
+    ::= { stats 83 }
+
+dnssecResultIndeterminate OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of responses sent, excluding packet-cache hits, that were in the DNSSEC indeterminate state"
+    ::= { stats 84 }
+
+dnssecResultNta OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of responses sent, excluding packet-cache hits, that were in the DNSSEC NTA state"
+    ::= { stats 85 }
+
+policyResultNoaction OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of policy-mandated no-action results"
+    ::= { stats 86 }
+
+policyResultDrop OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of policy-mandated drops"
+    ::= { stats 87 }
+
+policyResultNxdomain OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of policy-mandated NXdomain results"
+    ::= { stats 88 }
+
+policyResultNodata OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of policy-mandated nodata results"
+    ::= { stats 89 }
+
+policyResultTruncate OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of policy-mandated truncate results"
+    ::= { stats 90 }
+
+policyResultCustom OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of policy-mandated custom results"
+    ::= { stats 91 }
+
+queryPipeFullDrops OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries dropped because the query distribution pipe was full"
+    ::= { stats 92 }
+
+truncatedDrops OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries dropped because they were larger than 512 bytes"
+    ::= { stats 93 }
+
+emptyQueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries dropped because they had a QD count of 0"
+    ::= { stats 94 }
+
+dnssecAuthenticDataQueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries received with the AD bit set"
+    ::= { stats 95 }
+
+dnssecCheckDisabledQueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries received with the CD bit set"
+    ::= { stats 96 }
+
+variableResponses OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of variable responses"
+    ::= { stats 97 }
+
+specialMemoryUsage OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Memory usage (more precise but expensive to retrieve)"
+    ::= { stats 98 }
+
+rebalancedQueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of queries re-distributed because the first selected worker thread was above the target load"
+    ::= { stats 99 }
+
+qnameMinFallbackSuccess OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of successful queries due to fallback mechanism within 'qname-minimization' setting"
+    ::= { stats 100 }
+
+proxyProtocolInvalid OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of invalid proxy protocol headers received"
+    ::= { stats 101 }
+
+recordCacheContended OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of contended record cache lock acquisitions"
+    ::= { stats 102 }
+
+recordCacheAcquired OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of record cache lock acquisitions"
+    ::= { stats 103 }
+
+nodLookupsDroppedOversize OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of NOD lookups dropped because they would exceed the maximum name length"
+    ::= { stats 104 }
+
+taskQueuePushed OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of tasks pushed to the taskqueues"
+    ::= { stats 105 }
+
+taskQueueExpired OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of tasks expired before they could be run"
+    ::= { stats 106 }
+
+taskQueueSize OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of tasks currently in the taskqueues"
+    ::= { stats 107 }
+
+aggressiveNSECCacheEntries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of entries in the aggressive NSEC cache"
+    ::= { stats 108 }
+
+aggressiveNSECCacheNSECHits OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of NSEC-related hits from the aggressive NSEC cache"
+    ::= { stats 109 }
+
+aggressiveNSECCacheNSEC3Hits OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of NSEC3-related hits from the aggressive NSEC cache"
+    ::= { stats 110 }
+
+aggressiveNSECCacheNSECWcHits OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of answers synthesized from the NSEC aggressive cache"
+    ::= { stats 111 }
+
+aggressiveNSECCacheNSEC3WcHits OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of answers synthesized from the NSEC3 aggressive cache"
+    ::= { stats 112 }
+
+dotOutqueries OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of outgoing DoT queries since starting"
+    ::= { stats 113 }
+
+dns64PrefixAnswers OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of answers generated by dns64-prefix matching"
+    ::= { stats 114 }
+
+almostExpiredPushed OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of almost-expired tasks pushed"
+    ::= { stats 115 }
+
+almostExpiredRun OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of almost-expired tasks run"
+    ::= { stats 116 }
+
+almostExpiredExceptions OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of almost-expired tasks that caused an exception"
+    ::= { stats 117 }
+
+udpInCsumErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP in checksum errors (Linux only)"
+    ::= { stats 118 }
+
+udp6RecvbufErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP6 recvbuf errors (Linux only)"
+    ::= { stats 119 }
+
+udp6SndbufErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP6 sndbuf errors (Linux only)"
+    ::= { stats 120 }
+
+udp6NoportErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP6 noport errors (Linux only)"
+    ::= { stats 121 }
+
+udp6inErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP6 in errors (Linux only)"
+    ::= { stats 122 }
+
+udp6InCsumErrors OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of UDP6 in checksum errors (Linux only)"
+    ::= { stats 123 }
+
+sourceDisallowedNotify OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of NOTIFY operations not allowed by allow-notify-from"
+    ::= { stats 124 }
+
+zoneDisallowedNotify OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of NOTIFY operations not allowed by allow-notify-for"
+    ::= { stats 125 }
+
+nonResolvingNameserverEntries OBJECT-TYPE
+    SYNTAX CounterBasedGauge64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of entries in the non-resolving NS name cache"
+    ::= { stats 126 }
+
+maintenanceUSec OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Time spent doing internal maintenance, including Lua maintenance"
+    ::= { stats 127 }
+
+maintenanceCount OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of times internal maintenance has been called, including Lua maintenance"
+    ::= { stats 128 }
+
+authrcode0Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 0 (noerror) answers received"
+    ::= { stats 129 }
+
+authrcode1Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 1 (formerr) answers received"
+    ::= { stats 130 }
+
+authrcode2Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 2 (servfail) answers received"
+    ::= { stats 131 }
+
+authrcode3Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 3 (nxdomain) answers received"
+    ::= { stats 132 }
+
+authrcode4Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 4 (notimp) answers received"
+    ::= { stats 133 }
+
+authrcode5Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 5 (refused) answers received"
+    ::= { stats 134 }
+
+authrcode6Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 6 (yxdomain) answers received"
+    ::= { stats 135 }
+
+authrcode7Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 7 (yxrrset) answers received"
+    ::= { stats 136 }
+
+authrcode8Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 8 (nxrrset) answers received"
+    ::= { stats 137 }
+
+authrcode9Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 9 (notauth) answers received"
+    ::= { stats 138 }
+
+authrcode10Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 10 answers received"
+    ::= { stats 139 }
+
+authrcode11Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 11 answers received"
+    ::= { stats 140 }
+
+authrcode12Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 12 answers received"
+    ::= { stats 141 }
+
+authrcode13Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 13 answers received"
+    ::= { stats 142 }
+
+authrcode14Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 14 answers received"
+    ::= { stats 143 }
+
+authrcode15Count OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of rcode 15 answers received"
+    ::= { stats 144 }
+
+packetCacheContended OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of contended packet cache lock acquisitions"
+    ::= { stats 145 }
+
+packetCacheAcquired OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of packet cache lock acquisitions"
+    ::= { stats 146 }
+
+nodEvents OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Count of NOD events"
+    ::= { stats 147 }
+
+udrEvents OBJECT-TYPE
+    SYNTAX Counter64
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Count of UDR events"
+    ::= { stats 148 }
+
+---
+--- Traps / Notifications
+---
+
+trap OBJECT IDENTIFIER ::= { rec 10 }
+traps OBJECT IDENTIFIER ::= { trap 0 } --- reverse-mappable
+trapObjects OBJECT IDENTIFIER ::= { rec 11 }
+
+trapReason OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Reason for this trap"
+    ::= { trapObjects 1 }
+
+--- { trapObjects 5000 } up to and including { trapObjects 5999 } are reserved for local, product-specific extensions to the Recursor MIB
+
+customTrap NOTIFICATION-TYPE
+    OBJECTS {
+        trapReason
+    }
+    STATUS current
+    DESCRIPTION "Trap sent by sendCustomTrap"
+    ::= { traps 1 }
+
+--- { traps 5000 } up to and including { traps 5999 } are reserved for local, product-specific extensions to the Recursor MIB
+
+---
+--- Conformance
+---
+
+recConformance OBJECT IDENTIFIER ::= { rec 100 }
+
+recCompliances MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION "PowerDNS Recursor compliance statement"
+    MODULE
+    MANDATORY-GROUPS {
+        recGroup,
+        recTrapsGroup
+    }
+    ::= { recConformance 1 }
+
+recGroup OBJECT-GROUP
+    OBJECTS {
+        questions,
+        ipv6Questions,
+        tcpQuestions,
+        cacheHits,
+        cacheMisses,
+        cacheEntries,
+        cacheBytes,
+        packetcacheHits,
+        packetcacheMisses,
+        packetcacheEntries,
+        packetcacheBytes,
+        mallocBytes,
+        servfailAnswers,
+        nxdomainAnswers,
+        noerrorAnswers,
+        unauthorizedUdp,
+        unauthorizedTcp,
+        tcpClientOverflow,
+        clientParseErrors,
+        serverParseErrors,
+        tooOldDrops,
+        answers01,
+        answers110,
+        answers10100,
+        answers1001000,
+        answersSlow,
+        auth4Answers01,
+        auth4Answers110,
+        auth4Answers10100,
+        auth4Answers1001000,
+        auth4Answersslow,
+        auth6Answers01,
+        auth6Answers110,
+        auth6Answers10100,
+        auth6Answers1001000,
+        auth6AnswersSlow,
+        qaLatency,
+        unexpectedPackets,
+        caseMismatches,
+        spoofPrevents,
+        nssetInvalidations,
+        resourceLimits,
+        overCapacityDrops,
+        policyDrops,
+        noPacketError,
+        dlgOnlyDrops,
+        ignoredPackets,
+        maxMthreadStack,
+        negcacheEntries,
+        throttleEntries,
+        nsspeedsEntries,
+        failedHostEntries,
+        concurrentQueries,
+        securityStatus,
+        outgoingTimeouts,
+        outgoing4Timeouts,
+        outgoing6Timeouts,
+        tcpOutqueries,
+        allOutqueries,
+        ipv6Outqueries,
+        throttledOutqueries,
+        dontOutqueries,
+        unreachables,
+        chainResends,
+        tcpClients,
+        udpRecvbufErrors,
+        udpSndbufErrors,
+        udpNoportErrors,
+        udpinErrors,
+        ednsPingMatches,
+        ednsPingMismatches,
+        dnssecQueries,
+        nopingOutqueries,
+        noednsOutqueries,
+        uptime,
+        realMemoryUsage,
+        specialMemoryUsage,
+        fdUsage,
+        userMsec,
+        sysMsec,
+        dnssecValidations,
+        dnssecResultInsecure,
+        dnssecResultSecure,
+        dnssecResultBogus,
+        dnssecResultIndeterminate,
+        dnssecResultNta,
+        policyResultNoaction,
+        policyResultDrop,
+        policyResultNxdomain,
+        policyResultNodata,
+        policyResultTruncate,
+        policyResultCustom,
+        queryPipeFullDrops,
+        truncatedDrops,
+        emptyQueries,
+        dnssecAuthenticDataQueries,
+        dnssecCheckDisabledQueries,
+        variableResponses,
+        specialMemoryUsage,
+        rebalancedQueries,
+        trapReason,
+        qnameMinFallbackSuccess,
+        proxyProtocolInvalid,
+        recordCacheContended,
+        recordCacheAcquired,
+        nodLookupsDroppedOversize,
+        taskQueuePushed,
+        taskQueueExpired,
+        taskQueueSize,
+        aggressiveNSECCacheEntries,
+        aggressiveNSECCacheNSECHits,
+        aggressiveNSECCacheNSEC3Hits,
+        aggressiveNSECCacheNSECWcHits,
+        aggressiveNSECCacheNSEC3WcHits,
+        dotOutqueries,
+        dns64PrefixAnswers,
+        almostExpiredPushed,
+        almostExpiredRun,
+        almostExpiredExceptions,
+        udpInCsumErrors,
+        udp6RecvbufErrors,
+        udp6SndbufErrors,
+        udp6NoportErrors,
+        udp6inErrors,
+        udp6InCsumErrors,
+        sourceDisallowedNotify,
+        zoneDisallowedNotify,
+        nonResolvingNameserverEntries,
+        maintenanceUSec,
+        maintenanceCalls,
+        authrcode0Count,
+        authrcode1Count,
+        authrcode2Count,
+        authrcode3Count,
+        authrcode4Count,
+        authrcode5Count,
+        authrcode6Count,
+        authrcode7Count,
+        authrcode8Count,
+        authrcode9Count,
+        authrcode10Count,
+        authrcode11Count,
+        authrcode12Count,
+        authrcode13Count,
+        authrcode14Count,
+        authrcode15Count,
+        packetCacheContended,
+        packetCacheAcquired,
+        nodEvents,
+        udrEvents
+    }
+    STATUS current
+    DESCRIPTION "Objects conformance group for PowerDNS Recursor"
+    ::= { recConformance 2 }
+
+recTrapsGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        customTrap
+    }
+    STATUS current
+    DESCRIPTION "Traps conformance group for PowerDNS Recursor"
+    ::= { recConformance 3 }
+
+END

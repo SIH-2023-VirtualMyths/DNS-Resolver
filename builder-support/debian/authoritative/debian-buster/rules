@@ -1,0 +1,68 @@
+#!/usr/bin/make -f
+
+# Turn on all hardening flags, as we're a networked daemon.
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
+
+# Avoid test failure in docker.
+export PDNS_TEST_NO_IPV6=1
+
+# Backends
+backends := bind ldap lmdb lua2 pipe gmysql godbc gpgsql gsqlite3 geoip remote tinydns
+
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -f dnslabeltext.cc
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--sysconfdir=/etc/powerdns \
+		--enable-systemd --with-systemd=/lib/systemd/system \
+		--with-dynmodules="$(backends)" \
+		--with-modules="" \
+		--enable-ixfrdist \
+		--enable-tools \
+		--with-protobuf \
+		--enable-unit-tests \
+		--enable-lua-records \
+		--enable-experimental-pkcs11 \
+		--enable-dns-over-tls \
+		--disable-silent-rules \
+		$(CONFIGURE_ARGS)
+
+override_dh_auto_install:
+	dh_auto_install
+	find debian/tmp/usr/lib -name '*.la' -delete
+	rm debian/tmp/etc/powerdns/ixfrdist.example.yml debian/tmp/etc/powerdns/pdns.conf-dist
+
+override_dh_installsystemd:
+	dh_installsystemd --no-start -ppdns-server --name=pdns
+	dh_installsystemd --no-start -ppdns-ixfrdist --name=ixfrdist
+
+override_dh_install:
+	dh_install
+	./pdns/pdns_server --no-config --config=default | sed \
+	  -e 's!# module-dir=.*!!' \
+	  -e 's!# include-dir=.*!&\ninclude-dir=/etc/powerdns/pdns.d!' \
+	  -e 's!# launch=.*!&\nlaunch=!' \
+	  > debian/pdns-server/etc/powerdns/pdns.conf
+
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	./debian/tests-source/run
+	make check || (cat pdns/test-suite.log; false)
+endif
+
+override_dh_fixperms:
+	dh_fixperms
+	# these files often contain passwords.
+	chmod 0640 debian/pdns-server/etc/powerdns/pdns.conf
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip

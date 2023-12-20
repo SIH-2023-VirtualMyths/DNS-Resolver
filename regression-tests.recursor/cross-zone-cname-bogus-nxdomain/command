@@ -1,0 +1,2 @@
+#!/bin/sh
+cleandig www.trillian.example.net a | sed 's/\(.*\t\)\([0-9]\+\tIN\)/\13600\tIN/'

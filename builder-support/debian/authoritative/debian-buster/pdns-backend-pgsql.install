@@ -1,0 +1,2 @@
+usr/lib/*/pdns/libgpgsqlbackend.so*
+usr/share/doc/pdns/*.pgsql.sql usr/share/pdns-backend-pgsql/schema

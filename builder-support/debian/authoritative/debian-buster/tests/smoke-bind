@@ -1,0 +1,36 @@
+#!/bin/bash
+exec 2>&1
+set -ex
+
+ZONE=bind.example.org
+
+cat <<EOF >/etc/powerdns/named.conf
+zone "$ZONE" { type master; file "/etc/powerdns/$ZONE.zone"; };
+EOF
+
+cat <<EOF >/etc/powerdns/$ZONE.zone
+$ZONE.           172800  IN      SOA     ns1.example.org. dns.example.org. 1 10800 3600 604800 3600
+$ZONE.           172800  IN      NS      ns1.example.org.
+smoke.$ZONE.     172800  IN      A       127.0.0.222
+EOF
+
+service pdns restart
+journalctl _SYSTEMD_UNIT=pdns.service -n 10 --no-pager || true
+
+TMPFILE=$(mktemp)
+cleanup() {
+  rm -f "$TMPFILE"
+  journalctl _SYSTEMD_UNIT=pdns.service -n 100 --no-pager || true
+  service pdns stop
+}
+trap cleanup EXIT
+
+sdig 127.0.0.1 53 smoke.$ZONE A 2>&1 | tee "$TMPFILE"
+
+if grep -c '127\.0\.0\.222' "$TMPFILE"; then
+    echo success
+else
+    echo smoke.$ZONE could not be resolved
+    exit 1
+fi
+

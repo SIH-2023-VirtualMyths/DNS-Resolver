@@ -1,0 +1,24 @@
+# Part of that code has a race indeed, where we read the value then update it
+# We don't really care for these metrics
+race:doLatencyStats
+race:updateTCPLatency
+race:handleStats
+race:ClientState::updateTCPMetrics
+race:DownstreamState::updateTCPMetrics
+race:DownstreamState::updateTCPLatency
+# There is a race when we update the status of a backend,
+# but eventual consistency is fine there
+race:DownstreamState::setDown
+race:DownstreamState::setUp
+race:DownstreamState::setAuto
+# Same thing for whether a backend has been stopped,
+# eventual consistency is fine
+race:DownstreamState::stop
+race:DownstreamState::submitHealthCheckResult
+race:DownstreamState::healthCheckRequired
+race:carbonDumpThread
+# There is a slight race when we detect an error and
+# re-connect a backend, where the UDP responder thread
+# can still be looking at the existing socket descriptors.
+# Actually writing to these is protected by a mutex, though.
+race:DownstreamState::reconnect
